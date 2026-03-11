@@ -1,0 +1,428 @@
+-- =============================================
+-- SISTEMA DE GESTIÓN DE CONGREGADOS
+-- Base de Datos MySQL - Esquema Completo
+-- =============================================
+SET FOREIGN_KEY_CHECKS = 0;
+-- =============================================
+-- 1. USUARIOS Y AUTENTICACIÓN
+-- =============================================
+CREATE TABLE usuarios (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  activo BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- =============================================
+-- 2. TERRITORIOS
+-- =============================================
+CREATE TABLE territorios (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  codigo VARCHAR(20) NOT NULL UNIQUE,
+  nombre VARCHAR(100) NOT NULL,
+  color VARCHAR(7) NOT NULL DEFAULT '#1a365d' COMMENT 'Color hexadecimal distintivo',
+  descripcion TEXT,
+  activo BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- =============================================
+-- 3. CÉLULAS
+-- =============================================
+CREATE TABLE celulas (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  codigo VARCHAR(20) NOT NULL UNIQUE,
+  nombre VARCHAR(100) NOT NULL,
+  territorio_id CHAR(36) NOT NULL,
+  direccion VARCHAR(255),
+  dia_reunion ENUM('lunes','martes','miercoles','jueves','viernes','sabado','domingo') DEFAULT 'miercoles',
+  hora_reunion TIME,
+  activo BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_celula_territorio FOREIGN KEY (territorio_id) REFERENCES territorios(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- =============================================
+-- 4. MIEMBROS
+-- =============================================
+CREATE TABLE miembros (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  usuario_id CHAR(36) UNIQUE COMMENT 'Referencia al usuario si tiene acceso al sistema',
+  
+  -- Datos básicos (obligatorios)
+  nombre VARCHAR(100) NOT NULL,
+  apellido VARCHAR(100) NOT NULL,
+  telefono VARCHAR(20),
+  direccion VARCHAR(255),
+  
+  -- Datos complementarios
+  cedula VARCHAR(20) UNIQUE,
+  fecha_nacimiento DATE,
+  estado_civil ENUM('soltero','casado','divorciado','viudo','union_libre') DEFAULT NULL,
+  genero ENUM('masculino','femenino') DEFAULT NULL,
+  
+  -- Datos laborales
+  profesion VARCHAR(100),
+  oficio VARCHAR(100),
+  lugar_trabajo VARCHAR(150),
+  talentos TEXT COMMENT 'Lista separada por comas: música, enseñanza, etc.',
+  
+  -- Datos espirituales
+  celula_id CHAR(36),
+  fecha_conversion DATE,
+  invitado_por_id CHAR(36) COMMENT 'Miembro que lo invitó',
+  consolidador_id CHAR(36) COMMENT 'Miembro asignado como consolidador',
+  
+  -- Formación espiritual (booleanos y fechas)
+  encuentro BOOLEAN NOT NULL DEFAULT FALSE,
+  fecha_encuentro DATE,
+  bautismo BOOLEAN NOT NULL DEFAULT FALSE,
+  fecha_bautismo DATE,
+  
+  -- Escuela de Líderes
+  escuela_fundamento ENUM('no_iniciado','en_curso','completado') NOT NULL DEFAULT 'no_iniciado',
+  escuela_familia ENUM('no_iniciado','en_curso','completado') NOT NULL DEFAULT 'no_iniciado',
+  escuela_vision ENUM('no_iniciado','en_curso','completado') NOT NULL DEFAULT 'no_iniciado',
+  escuela_intercesion ENUM('no_iniciado','en_curso','completado') NOT NULL DEFAULT 'no_iniciado',
+  escuela_liderazgo ENUM('no_iniciado','en_curso','completado') NOT NULL DEFAULT 'no_iniciado',
+  escuela_consolidacion ENUM('no_iniciado','en_curso','completado') NOT NULL DEFAULT 'no_iniciado',
+  
+  -- Otras formaciones
+  escuela_profetica ENUM('no_iniciado','en_curso','completado') NOT NULL DEFAULT 'no_iniciado',
+  universidad_am ENUM('no_iniciado','en_curso','completado') NOT NULL DEFAULT 'no_iniciado',
+  escuela_teologica ENUM('no_iniciado','en_curso','completado') NOT NULL DEFAULT 'no_iniciado',
+  
+  -- Estado del miembro
+  estado ENUM('activo','inactivo','trasladado','baja') NOT NULL DEFAULT 'activo',
+  foto_url VARCHAR(500),
+  notas TEXT,
+  
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  CONSTRAINT fk_miembro_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
+  CONSTRAINT fk_miembro_celula FOREIGN KEY (celula_id) REFERENCES celulas(id) ON DELETE SET NULL,
+  CONSTRAINT fk_miembro_invitado_por FOREIGN KEY (invitado_por_id) REFERENCES miembros(id) ON DELETE SET NULL,
+  CONSTRAINT fk_miembro_consolidador FOREIGN KEY (consolidador_id) REFERENCES miembros(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_miembro_celula ON miembros(celula_id);
+CREATE INDEX idx_miembro_estado ON miembros(estado);
+CREATE INDEX idx_miembro_consolidador ON miembros(consolidador_id);
+-- =============================================
+-- 5. ROLES DEL SISTEMA (Permisos de acceso)
+-- =============================================
+CREATE TABLE roles (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  nombre VARCHAR(50) NOT NULL UNIQUE,
+  descripcion VARCHAR(255),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO roles (id, nombre, descripcion) VALUES
+  (UUID(), 'pastor', 'Pastor - Acceso completo al sistema'),
+  (UUID(), 'administrador', 'Administrador del sistema - Acceso completo'),
+  (UUID(), 'lider_territorio', 'Líder de territorio - Gestión de su territorio'),
+  (UUID(), 'lider_celula', 'Líder de célula - Gestión de su célula'),
+  (UUID(), 'co_lider', 'Co-líder - Apoyo al líder de célula'),
+  (UUID(), 'anfitrion', 'Anfitrión/a - Hospeda la célula'),
+  (UUID(), 'consolidador', 'Consolidador/a - Consolida nuevos'),
+  (UUID(), 'miembro', 'Miembro regular'),
+  (UUID(), 'invitado', 'Invitado/a');
+-- Un miembro puede tener múltiples roles
+CREATE TABLE miembro_roles (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  miembro_id CHAR(36) NOT NULL,
+  rol_id CHAR(36) NOT NULL,
+  territorio_id CHAR(36) COMMENT 'Territorio donde ejerce el rol (si aplica)',
+  celula_id CHAR(36) COMMENT 'Célula donde ejerce el rol (si aplica)',
+  fecha_asignacion DATE NOT NULL DEFAULT (CURRENT_DATE),
+  activo BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  
+  UNIQUE KEY uk_miembro_rol_contexto (miembro_id, rol_id, territorio_id, celula_id),
+  CONSTRAINT fk_mr_miembro FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE,
+  CONSTRAINT fk_mr_rol FOREIGN KEY (rol_id) REFERENCES roles(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_mr_territorio FOREIGN KEY (territorio_id) REFERENCES territorios(id) ON DELETE SET NULL,
+  CONSTRAINT fk_mr_celula FOREIGN KEY (celula_id) REFERENCES celulas(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- =============================================
+-- 6. GUÍAS DE CONSOLIDACIÓN (Configurables)
+-- =============================================
+CREATE TABLE guias (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  numero INT NOT NULL,
+  titulo VARCHAR(100) NOT NULL,
+  descripcion TEXT,
+  activo BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_guia_numero (numero)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Guías por defecto
+INSERT INTO guias (id, numero, titulo) VALUES
+  (UUID(), 1, 'Salvación'),
+  (UUID(), 2, 'Seguridad'),
+  (UUID(), 3, 'Oración'),
+  (UUID(), 4, 'Biblia'),
+  (UUID(), 5, 'Iglesia'),
+  (UUID(), 6, 'Bautismo'),
+  (UUID(), 7, 'Victoria'),
+  (UUID(), 8, 'Testimonio'),
+  (UUID(), 9, 'Diezmo'),
+  (UUID(), 10, 'Servicio');
+-- Seguimiento de guías por miembro
+CREATE TABLE miembro_guias (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  miembro_id CHAR(36) NOT NULL,
+  guia_id CHAR(36) NOT NULL,
+  completada BOOLEAN NOT NULL DEFAULT FALSE,
+  fecha_completada DATE,
+  marcada_por_id CHAR(36) COMMENT 'Quién marcó la guía como completada',
+  notas TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  UNIQUE KEY uk_miembro_guia (miembro_id, guia_id),
+  CONSTRAINT fk_mg_miembro FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE,
+  CONSTRAINT fk_mg_guia FOREIGN KEY (guia_id) REFERENCES guias(id) ON DELETE CASCADE,
+  CONSTRAINT fk_mg_marcada_por FOREIGN KEY (marcada_por_id) REFERENCES miembros(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- =============================================
+-- 7. ASISTENCIA DOMINICAL
+-- =============================================
+CREATE TABLE servicios (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  fecha DATE NOT NULL,
+  tipo ENUM('domingo','especial','entre_semana') NOT NULL DEFAULT 'domingo',
+  descripcion VARCHAR(255),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_servicio_fecha_tipo (fecha, tipo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE asistencia_servicio (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  servicio_id CHAR(36) NOT NULL,
+  celula_id CHAR(36) NOT NULL,
+  registrado_por_id CHAR(36) NOT NULL COMMENT 'Líder que registró la asistencia',
+  ofrendas DECIMAL(10,2) DEFAULT 0.00,
+  notas TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  UNIQUE KEY uk_asistencia_servicio_celula (servicio_id, celula_id),
+  CONSTRAINT fk_as_servicio FOREIGN KEY (servicio_id) REFERENCES servicios(id) ON DELETE CASCADE,
+  CONSTRAINT fk_as_celula FOREIGN KEY (celula_id) REFERENCES celulas(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_as_registrado_por FOREIGN KEY (registrado_por_id) REFERENCES miembros(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE asistencia_detalle (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  asistencia_servicio_id CHAR(36) NOT NULL,
+  miembro_id CHAR(36) NOT NULL,
+  presente BOOLEAN NOT NULL DEFAULT FALSE,
+  tipo_asistente ENUM('miembro','primera_vez','visita') NOT NULL DEFAULT 'miembro',
+  notas VARCHAR(255),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  
+  UNIQUE KEY uk_detalle_asistencia_miembro (asistencia_servicio_id, miembro_id),
+  CONSTRAINT fk_ad_asistencia FOREIGN KEY (asistencia_servicio_id) REFERENCES asistencia_servicio(id) ON DELETE CASCADE,
+  CONSTRAINT fk_ad_miembro FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- =============================================
+-- 8. GANADOS (Personas nuevas durante la semana)
+-- =============================================
+CREATE TABLE ganados (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  nombre VARCHAR(100) NOT NULL,
+  apellido VARCHAR(100) NOT NULL,
+  telefono VARCHAR(20),
+  direccion VARCHAR(255),
+  fecha_ganado DATE NOT NULL DEFAULT (CURRENT_DATE),
+  ganado_por_id CHAR(36) NOT NULL COMMENT 'Miembro que lo ganó',
+  celula_id CHAR(36) COMMENT 'Célula donde fue ganado',
+  servicio_id CHAR(36) COMMENT 'Servicio donde fue ganado (si aplica)',
+  contexto ENUM('celula','servicio','personal') NOT NULL DEFAULT 'personal',
+  convertido_a_miembro BOOLEAN NOT NULL DEFAULT FALSE,
+  miembro_id CHAR(36) COMMENT 'Referencia al miembro si fue registrado',
+  notas TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  
+  CONSTRAINT fk_g_ganado_por FOREIGN KEY (ganado_por_id) REFERENCES miembros(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_g_celula FOREIGN KEY (celula_id) REFERENCES celulas(id) ON DELETE SET NULL,
+  CONSTRAINT fk_g_servicio FOREIGN KEY (servicio_id) REFERENCES servicios(id) ON DELETE SET NULL,
+  CONSTRAINT fk_g_miembro FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_ganado_fecha ON ganados(fecha_ganado);
+CREATE INDEX idx_ganado_por ON ganados(ganado_por_id);
+-- =============================================
+-- 9. ACTIVIDADES DINÁMICAS DE CONSOLIDACIÓN
+-- =============================================
+CREATE TABLE actividades (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  nombre VARCHAR(100) NOT NULL,
+  descripcion TEXT,
+  fecha DATE,
+  tipo ENUM('encuentro','retiro','taller','capacitacion','otro') NOT NULL DEFAULT 'otro',
+  activo BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE miembro_actividades (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  miembro_id CHAR(36) NOT NULL,
+  actividad_id CHAR(36) NOT NULL,
+  asistio BOOLEAN NOT NULL DEFAULT FALSE,
+  fecha_registro DATE,
+  notas VARCHAR(255),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  
+  UNIQUE KEY uk_miembro_actividad (miembro_id, actividad_id),
+  CONSTRAINT fk_ma_miembro FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE,
+  CONSTRAINT fk_ma_actividad FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- =============================================
+-- 10. TRASLADOS
+-- =============================================
+CREATE TABLE traslados (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  miembro_id CHAR(36) NOT NULL,
+  celula_origen_id CHAR(36) NOT NULL,
+  celula_destino_id CHAR(36) NOT NULL,
+  solicitado_por_id CHAR(36) NOT NULL,
+  aprobado_por_id CHAR(36),
+  motivo TEXT,
+  estado ENUM('pendiente','aprobado','rechazado') NOT NULL DEFAULT 'pendiente',
+  fecha_solicitud TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  fecha_resolucion TIMESTAMP,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  
+  CONSTRAINT fk_t_miembro FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE,
+  CONSTRAINT fk_t_origen FOREIGN KEY (celula_origen_id) REFERENCES celulas(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_t_destino FOREIGN KEY (celula_destino_id) REFERENCES celulas(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_t_solicitado FOREIGN KEY (solicitado_por_id) REFERENCES miembros(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_t_aprobado FOREIGN KEY (aprobado_por_id) REFERENCES miembros(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- =============================================
+-- 11. CONFIGURACIÓN DEL SISTEMA
+-- =============================================
+CREATE TABLE configuracion (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  clave VARCHAR(100) NOT NULL UNIQUE,
+  valor TEXT NOT NULL,
+  descripcion VARCHAR(255),
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO configuracion (id, clave, valor, descripcion) VALUES
+  (UUID(), 'nombre_iglesia', 'Iglesia Cristiana', 'Nombre de la iglesia'),
+  (UUID(), 'pastor_principal', '', 'Nombre del pastor principal'),
+  (UUID(), 'direccion_iglesia', '', 'Dirección de la iglesia'),
+  (UUID(), 'telefono_iglesia', '', 'Teléfono de la iglesia'),
+  (UUID(), 'total_guias', '10', 'Número total de guías de consolidación');
+-- =============================================
+-- 12. AUDITORÍA
+-- =============================================
+CREATE TABLE auditoria (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  usuario_id CHAR(36),
+  accion VARCHAR(50) NOT NULL,
+  tabla_afectada VARCHAR(50) NOT NULL,
+  registro_id CHAR(36),
+  datos_anteriores JSON,
+  datos_nuevos JSON,
+  ip VARCHAR(45),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  
+  CONSTRAINT fk_aud_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_auditoria_tabla ON auditoria(tabla_afectada);
+CREATE INDEX idx_auditoria_fecha ON auditoria(created_at);
+SET FOREIGN_KEY_CHECKS = 1;
+-- =============================================
+-- VISTAS ÚTILES PARA REPORTES
+-- =============================================
+-- Vista: Resumen de miembros por célula con conteo de guías
+CREATE VIEW v_miembros_resumen AS
+SELECT 
+  m.id,
+  m.nombre,
+  m.apellido,
+  m.estado,
+  m.celula_id,
+  c.nombre AS celula_nombre,
+  t.nombre AS territorio_nombre,
+  t.codigo AS territorio_codigo,
+  COALESCE(g.guias_completadas, 0) AS guias_completadas,
+  m.encuentro,
+  m.bautismo,
+  m.fecha_conversion,
+  cons.nombre AS consolidador_nombre,
+  cons.apellido AS consolidador_apellido
+FROM miembros m
+LEFT JOIN celulas c ON m.celula_id = c.id
+LEFT JOIN territorios t ON c.territorio_id = t.id
+LEFT JOIN miembros cons ON m.consolidador_id = cons.id
+LEFT JOIN (
+  SELECT miembro_id, COUNT(*) AS guias_completadas 
+  FROM miembro_guias WHERE completada = TRUE 
+  GROUP BY miembro_id
+) g ON m.id = g.miembro_id;
+-- Vista: Reporte de asistencia dominical
+CREATE VIEW v_reporte_asistencia AS
+SELECT 
+  s.fecha,
+  s.tipo,
+  c.nombre AS celula,
+  t.nombre AS territorio,
+  reg.nombre AS registrado_por_nombre,
+  asv.ofrendas,
+  COUNT(CASE WHEN ad.presente = TRUE AND ad.tipo_asistente = 'miembro' THEN 1 END) AS presentes,
+  COUNT(CASE WHEN ad.presente = TRUE AND ad.tipo_asistente = 'primera_vez' THEN 1 END) AS primera_vez,
+  COUNT(CASE WHEN ad.presente = TRUE AND ad.tipo_asistente = 'visita' THEN 1 END) AS visitas,
+  COUNT(CASE WHEN ad.presente = TRUE THEN 1 END) AS total_asistentes
+FROM asistencia_servicio asv
+JOIN servicios s ON asv.servicio_id = s.id
+JOIN celulas c ON asv.celula_id = c.id
+JOIN territorios t ON c.territorio_id = t.id
+JOIN miembros reg ON asv.registrado_por_id = reg.id
+LEFT JOIN asistencia_detalle ad ON asv.id = ad.asistencia_servicio_id
+GROUP BY s.fecha, s.tipo, c.nombre, t.nombre, reg.nombre, asv.ofrendas;
+-- Vista: Ganados del mes
+CREATE VIEW v_ganados_mes AS
+SELECT 
+  DATE_FORMAT(g.fecha_ganado, '%Y-%m') AS mes,
+  g.contexto,
+  c.nombre AS celula,
+  t.nombre AS territorio,
+  CONCAT(gp.nombre, ' ', gp.apellido) AS ganado_por,
+  COUNT(*) AS total_ganados
+FROM ganados g
+JOIN miembros gp ON g.ganado_por_id = gp.id
+LEFT JOIN celulas c ON g.celula_id = c.id
+LEFT JOIN territorios t ON c.territorio_id = t.id
+GROUP BY mes, g.contexto, c.nombre, t.nombre, CONCAT(gp.nombre, ' ', gp.apellido);
+-- Vista: Estado de formación
+CREATE VIEW v_formacion_resumen AS
+SELECT
+  t.nombre AS territorio,
+  c.nombre AS celula,
+  COUNT(*) AS total_miembros,
+  SUM(CASE WHEN m.encuentro = TRUE THEN 1 ELSE 0 END) AS con_encuentro,
+  SUM(CASE WHEN m.encuentro = FALSE THEN 1 ELSE 0 END) AS sin_encuentro,
+  SUM(CASE WHEN m.bautismo = TRUE THEN 1 ELSE 0 END) AS bautizados,
+  SUM(CASE WHEN m.escuela_fundamento = 'completado' 
+        AND m.escuela_familia = 'completado' 
+        AND m.escuela_vision = 'completado'
+        AND m.escuela_intercesion = 'completado'
+        AND m.escuela_liderazgo = 'completado'
+        AND m.escuela_consolidacion = 'completado' THEN 1 ELSE 0 END) AS graduados_escuela_lideres,
+  SUM(CASE WHEN m.escuela_fundamento != 'no_iniciado' 
+        AND NOT (m.escuela_fundamento = 'completado' 
+                AND m.escuela_familia = 'completado'
+                AND m.escuela_vision = 'completado'
+                AND m.escuela_intercesion = 'completado'
+                AND m.escuela_liderazgo = 'completado'
+                AND m.escuela_consolidacion = 'completado') THEN 1 ELSE 0 END) AS en_escuela_lideres,
+  SUM(CASE WHEN m.escuela_profetica != 'no_iniciado' THEN 1 ELSE 0 END) AS en_escuela_profetica,
+  SUM(CASE WHEN m.universidad_am != 'no_iniciado' THEN 1 ELSE 0 END) AS en_universidad_am,
+  SUM(CASE WHEN m.escuela_teologica != 'no_iniciado' THEN 1 ELSE 0 END) AS en_escuela_teologica
+FROM miembros m
+LEFT JOIN celulas c ON m.celula_id = c.id
+LEFT JOIN territorios t ON c.territorio_id = t.id
+WHERE m.estado = 'activo'
+GROUP BY t.nombre, c.nombre;

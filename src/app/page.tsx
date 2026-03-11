@@ -1,65 +1,117 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { Users, MapPin, Grid3X3, TrendingUp } from "lucide-react";
+import { StatCard } from "@/components/dashboard/StatCard";
+import { RecentActivity } from "@/components/dashboard/RecentActivity";
+import { QuickActions } from "@/components/dashboard/QuickActions";
+import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
+
+export default function Dashboard() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="space-y-6 p-4 lg:p-6">
+      {/* Header */}
+      <div className="space-y-1">
+        <h1 className="title-page">
+          Bienvenido
+        </h1>
+        <p className="text-muted-foreground">
+          Resumen general de la congregación • {new Date().toLocaleDateString("es-ES", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Miembros"
+          value="248"
+          description="12 nuevos este mes"
+          icon={Users}
+          trend={{ value: 8, isPositive: true }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+        <StatCard
+          title="Territorios"
+          value="6"
+          description="Activos"
+          icon={MapPin}
+          variant="primary"
+        />
+        <StatCard
+          title="Células Activas"
+          value="24"
+          description="4 en crecimiento"
+          icon={Grid3X3}
+        />
+        <StatCard
+          title="Asistencia Domingo"
+          value="162"
+          description="Último servicio"
+          icon={TrendingUp}
+          trend={{ value: 5, isPositive: true }}
+          variant="primary"
+        />
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Chart - spans 2 columns */}
+        <div className="lg:col-span-2">
+          <AttendanceChart />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Quick Actions */}
+        <div>
+          <QuickActions />
         </div>
-      </main>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <RecentActivity />
+        </div>
+
+        {/* Upcoming Events Card */}
+        <div className="rounded-xl border bg-card p-6 shadow-card animate-fade-in">
+          <h3 className="title-section">Próximos Eventos</h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
+              <div className="flex h-12 w-12 flex-col items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <span className="text-xs font-medium">DOM</span>
+                <span className="text-lg font-bold">09</span>
+              </div>
+              <div>
+                <p className="font-medium">Servicio Dominical</p>
+                <p className="text-sm text-muted-foreground">10:00 AM - Santuario Principal</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
+              <div className="flex h-12 w-12 flex-col items-center justify-center rounded-lg bg-purple text-purple-foreground">
+                <span className="text-xs font-medium">MIÉ</span>
+                <span className="text-lg font-bold">12</span>
+              </div>
+              <div>
+                <p className="font-medium">Reunión de Líderes</p>
+                <p className="text-sm text-muted-foreground">7:00 PM - Salón de Conferencias</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
+              <div className="flex h-12 w-12 flex-col items-center justify-center rounded-lg bg-info text-info-foreground">
+                <span className="text-xs font-medium">SÁB</span>
+                <span className="text-lg font-bold">15</span>
+              </div>
+              <div>
+                <p className="font-medium">Encuentro Juvenil</p>
+                <p className="text-sm text-muted-foreground">4:00 PM - Área Juvenil</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

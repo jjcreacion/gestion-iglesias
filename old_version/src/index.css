@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+/* Sistema de Gestión Eclesiástico - Design System
+   Paleta sobria con azul marino, ámbar dorado y tonos neutros cálidos
+*/
+
+@layer base {
+  :root {
+    /* Fondos cálidos y suaves para descanso visual */
+    --background: 40 25% 97%;
+    --foreground: 220 25% 15%;
+
+    /* Cards con fondo claro y sutil */
+    --card: 40 30% 99%;
+    --card-foreground: 220 25% 15%;
+
+    /* Popovers */
+    --popover: 40 30% 99%;
+    --popover-foreground: 220 25% 15%;
+
+    /* Primary: Azul marino profundo - confianza y espiritualidad */
+    --primary: 220 45% 25%;
+    --primary-foreground: 40 30% 98%;
+
+    /* Secondary: Gris cálido */
+    --secondary: 30 15% 92%;
+    --secondary-foreground: 220 25% 20%;
+
+    /* Muted: Tonos suaves */
+    --muted: 30 15% 94%;
+    --muted-foreground: 220 15% 45%;
+
+    /* Accent: Ámbar dorado - calidez y bienvenida */
+    --accent: 38 85% 55%;
+    --accent-foreground: 220 45% 15%;
+
+    /* Destructive */
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders e inputs */
+    --border: 30 20% 88%;
+    --input: 30 20% 88%;
+    --ring: 220 45% 25%;
+
+    --radius: 0.625rem;
+
+    /* Sidebar */
+    --sidebar-background: 220 45% 22%;
+    --sidebar-foreground: 220 20% 90%;
+    --sidebar-primary: 38 85% 55%;
+    --sidebar-primary-foreground: 220 45% 15%;
+    --sidebar-accent: 220 40% 30%;
+    --sidebar-accent-foreground: 220 20% 95%;
+    --sidebar-border: 220 40% 28%;
+    --sidebar-ring: 38 85% 55%;
+
+    /* Custom semantic colors */
+    --success: 145 60% 40%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 90% 50%;
+    --warning-foreground: 30 50% 15%;
+    --info: 200 80% 45%;
+    --info-foreground: 0 0% 100%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 45% 25%) 0%, hsl(220 50% 35%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(38 85% 55%) 0%, hsl(35 90% 45%) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(40 25% 97%) 0%, hsl(35 30% 94%) 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(220 25% 15% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(220 25% 15% / 0.08), 0 2px 4px -2px hsl(220 25% 15% / 0.05);
+    --shadow-lg: 0 10px 15px -3px hsl(220 25% 15% / 0.08), 0 4px 6px -4px hsl(220 25% 15% / 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(220 25% 15% / 0.1), 0 8px 10px -6px hsl(220 25% 15% / 0.05);
+  }
+
+  .dark {
+    --background: 220 30% 10%;
+    --foreground: 40 20% 95%;
+
+    --card: 220 30% 12%;
+    --card-foreground: 40 20% 95%;
+
+    --popover: 220 30% 12%;
+    --popover-foreground: 40 20% 95%;
+
+    --primary: 38 75% 55%;
+    --primary-foreground: 220 45% 12%;
+
+    --secondary: 220 25% 18%;
+    --secondary-foreground: 40 20% 90%;
+
+    --muted: 220 25% 18%;
+    --muted-foreground: 220 15% 60%;
+
+    --accent: 38 75% 50%;
+    --accent-foreground: 220 45% 12%;
+
+    --destructive: 0 60% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 25% 20%;
+    --input: 220 25% 20%;
+    --ring: 38 75% 55%;
+
+    --sidebar-background: 220 35% 8%;
+    --sidebar-foreground: 40 20% 90%;
+    --sidebar-primary: 38 75% 55%;
+    --sidebar-primary-foreground: 220 45% 12%;
+    --sidebar-accent: 220 30% 15%;
+    --sidebar-accent-foreground: 40 20% 95%;
+    --sidebar-border: 220 25% 18%;
+    --sidebar-ring: 38 75% 55%;
+
+    --success: 145 55% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 85% 55%;
+    --warning-foreground: 30 50% 10%;
+    --info: 200 75% 50%;
+    --info-foreground: 0 0% 100%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(38 75% 55%) 0%, hsl(35 80% 45%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(220 35% 25%) 0%, hsl(220 40% 35%) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(220 30% 10%) 0%, hsl(220 35% 8%) 100%);
+
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -4px hsl(0 0% 0% / 0.3);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.5), 0 8px 10px -6px hsl(0 0% 0% / 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+
+  .gradient-warm {
+    background: var(--gradient-warm);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-lg);
+  }
+}
