@@ -7,20 +7,20 @@ import {
     JoinColumn,
     Unique,
 } from "typeorm";
-import { Miembro } from "./Miembro";
-import { Actividad } from "./Actividad";
+import type { Miembro } from "./Miembro";
+import type { Actividad } from "./Actividad";
 
 @Entity("miembro_actividades")
 @Unique("uk_miembro_actividad", ["miembroId", "actividadId"])
 export class MiembroActividad {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-    @Column({ name: "miembro_id", type: "char", length: 36 })
-    miembroId!: string;
+    @Column({ name: "miembro_id", type: "int" })
+    miembroId!: number;
 
-    @Column({ name: "actividad_id", type: "char", length: 36 })
-    actividadId!: string;
+    @Column({ name: "actividad_id", type: "int" })
+    actividadId!: number;
 
     @Column({ type: "boolean", default: false })
     asistio!: boolean;
@@ -35,11 +35,11 @@ export class MiembroActividad {
     createdAt!: Date;
 
     // Relaciones
-    @ManyToOne(() => Miembro, (miembro) => miembro.actividades, { onDelete: "CASCADE" })
+    @ManyToOne("Miembro", "actividades", { onDelete: "CASCADE" })
     @JoinColumn({ name: "miembro_id" })
     miembro!: Miembro;
 
-    @ManyToOne(() => Actividad, (actividad) => actividad.miembroActividades, { onDelete: "CASCADE" })
+    @ManyToOne("Actividad", "miembroActividades", { onDelete: "CASCADE" })
     @JoinColumn({ name: "actividad_id" })
     actividad!: Actividad;
 }

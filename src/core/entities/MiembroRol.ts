@@ -7,28 +7,28 @@ import {
     JoinColumn,
     Unique,
 } from "typeorm";
-import { Miembro } from "./Miembro";
-import { Rol } from "./Rol";
-import { Territorio } from "./Territorio";
-import { Celula } from "./Celula";
+import type { Miembro } from "./Miembro";
+import type { Rol } from "./Rol";
+import type { Territorio } from "./Territorio";
+import type { Celula } from "./Celula";
 
 @Entity("miembro_roles")
 @Unique("uk_miembro_rol_contexto", ["miembroId", "rolId", "territorioId", "celulaId"])
 export class MiembroRol {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-    @Column({ name: "miembro_id", type: "char", length: 36 })
-    miembroId!: string;
+    @Column({ name: "miembro_id", type: "int" })
+    miembroId!: number;
 
-    @Column({ name: "rol_id", type: "char", length: 36 })
-    rolId!: string;
+    @Column({ name: "rol_id", type: "int" })
+    rolId!: number;
 
-    @Column({ name: "territorio_id", type: "char", length: 36, nullable: true })
-    territorioId?: string;
+    @Column({ name: "territorio_id", type: "int", nullable: true })
+    territorioId?: number;
 
-    @Column({ name: "celula_id", type: "char", length: 36, nullable: true })
-    celulaId?: string;
+    @Column({ name: "celula_id", type: "int", nullable: true })
+    celulaId?: number;
 
     @Column({ name: "fecha_asignacion", type: "date" })
     fechaAsignacion!: Date;
@@ -40,22 +40,22 @@ export class MiembroRol {
     createdAt!: Date;
 
     // Relaciones
-    @ManyToOne(() => Miembro, (miembro) => miembro.roles, { onDelete: "CASCADE" })
+    @ManyToOne("Miembro", "roles", { onDelete: "CASCADE" })
     @JoinColumn({ name: "miembro_id" })
     miembro!: Miembro;
 
-    @ManyToOne(() => Rol, (rol) => rol.miembroRoles, { onDelete: "RESTRICT" })
+    @ManyToOne("Rol", "miembroRoles", { onDelete: "RESTRICT" })
     @JoinColumn({ name: "rol_id" })
     rol!: Rol;
 
-    @ManyToOne(() => Territorio, (territorio) => territorio.miembroRoles, {
+    @ManyToOne("Territorio", "miembroRoles", {
         onDelete: "SET NULL",
         nullable: true,
     })
     @JoinColumn({ name: "territorio_id" })
     territorio?: Territorio;
 
-    @ManyToOne(() => Celula, (celula) => celula.miembroRoles, {
+    @ManyToOne("Celula", "miembroRoles", {
         onDelete: "SET NULL",
         nullable: true,
     })

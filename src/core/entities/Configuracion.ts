@@ -7,8 +7,8 @@ import {
 
 @Entity("configuracion")
 export class Configuracion {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
     @Column({ type: "varchar", length: 100, unique: true })
     clave!: string;

@@ -10,15 +10,15 @@ import {
     JoinColumn,
     Index,
 } from "typeorm";
-import { Usuario } from "./Usuario";
-import { Celula } from "./Celula";
-import { MiembroRol } from "./MiembroRol";
-import { MiembroGuia } from "./MiembroGuia";
-import { MiembroActividad } from "./MiembroActividad";
-import { AsistenciaServicio } from "./AsistenciaServicio";
-import { AsistenciaDetalle } from "./AsistenciaDetalle";
-import { Ganado } from "./Ganado";
-import { Traslado } from "./Traslado";
+import type { Usuario } from "./Usuario";
+import type { Celula } from "./Celula";
+import type { MiembroRol } from "./MiembroRol";
+import type { MiembroGuia } from "./MiembroGuia";
+import type { MiembroActividad } from "./MiembroActividad";
+import type { AsistenciaServicio } from "./AsistenciaServicio";
+import type { AsistenciaDetalle } from "./AsistenciaDetalle";
+import type { Ganado } from "./Ganado";
+import type { Traslado } from "./Traslado";
 
 export type EstadoCivil = "soltero" | "casado" | "divorciado" | "viudo" | "union_libre";
 export type Genero = "masculino" | "femenino";
@@ -30,11 +30,11 @@ export type EstadoMiembro = "activo" | "inactivo" | "trasladado" | "baja";
 @Index("idx_miembro_estado", ["estado"])
 @Index("idx_miembro_consolidador", ["consolidadorId"])
 export class Miembro {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-    @Column({ name: "usuario_id", type: "char", length: 36, nullable: true, unique: true })
-    usuarioId?: string;
+    @Column({ name: "usuario_id", type: "int", nullable: true, unique: true })
+    usuarioId?: number;
 
     // Datos básicos
     @Column({ type: "varchar", length: 100 })
@@ -85,17 +85,17 @@ export class Miembro {
     talentos?: string;
 
     // Datos espirituales
-    @Column({ name: "celula_id", type: "char", length: 36, nullable: true })
-    celulaId?: string;
+    @Column({ name: "celula_id", type: "int", nullable: true })
+    celulaId?: number;
 
     @Column({ name: "fecha_conversion", type: "date", nullable: true })
     fechaConversion?: Date;
 
-    @Column({ name: "invitado_por_id", type: "char", length: 36, nullable: true })
-    invitadoPorId?: string;
+    @Column({ name: "invitado_por_id", type: "int", nullable: true })
+    invitadoPorId?: number;
 
-    @Column({ name: "consolidador_id", type: "char", length: 36, nullable: true })
-    consolidadorId?: string;
+    @Column({ name: "consolidador_id", type: "int", nullable: true })
+    consolidadorId?: number;
 
     // Formación espiritual
     @Column({ type: "boolean", default: false })
@@ -205,52 +205,52 @@ export class Miembro {
     updatedAt!: Date;
 
     // ---- Relaciones ----
-    @OneToOne(() => Usuario, (usuario) => usuario.miembro, { onDelete: "SET NULL" })
+    @OneToOne("Usuario", "miembro", { onDelete: "SET NULL" })
     @JoinColumn({ name: "usuario_id" })
     usuario?: Usuario;
 
-    @ManyToOne(() => Celula, (celula) => celula.miembros, { onDelete: "SET NULL", nullable: true })
+    @ManyToOne("Celula", "miembros", { onDelete: "SET NULL", nullable: true })
     @JoinColumn({ name: "celula_id" })
     celula?: Celula;
 
-    @ManyToOne(() => Miembro, (miembro) => miembro.invitados, { onDelete: "SET NULL", nullable: true })
+    @ManyToOne("Miembro", "invitados", { onDelete: "SET NULL", nullable: true })
     @JoinColumn({ name: "invitado_por_id" })
     invitadoPor?: Miembro;
 
-    @OneToMany(() => Miembro, (miembro) => miembro.invitadoPor)
+    @OneToMany("Miembro", "invitadoPor")
     invitados?: Miembro[];
 
-    @ManyToOne(() => Miembro, (miembro) => miembro.consolidados, { onDelete: "SET NULL", nullable: true })
+    @ManyToOne("Miembro", "consolidados", { onDelete: "SET NULL", nullable: true })
     @JoinColumn({ name: "consolidador_id" })
     consolidador?: Miembro;
 
-    @OneToMany(() => Miembro, (miembro) => miembro.consolidador)
+    @OneToMany("Miembro", "consolidador")
     consolidados?: Miembro[];
 
-    @OneToMany(() => MiembroRol, (mr) => mr.miembro)
+    @OneToMany("MiembroRol", "miembro")
     roles?: MiembroRol[];
 
-    @OneToMany(() => MiembroGuia, (mg) => mg.miembro)
+    @OneToMany("MiembroGuia", "miembro")
     guias?: MiembroGuia[];
 
-    @OneToMany(() => MiembroActividad, (ma) => ma.miembro)
+    @OneToMany("MiembroActividad", "miembro")
     actividades?: MiembroActividad[];
 
-    @OneToMany(() => AsistenciaServicio, (as) => as.registradoPor)
+    @OneToMany("AsistenciaServicio", "registradoPor")
     asistenciasRegistradas?: AsistenciaServicio[];
 
-    @OneToMany(() => AsistenciaDetalle, (ad) => ad.miembro)
+    @OneToMany("AsistenciaDetalle", "miembro")
     asistenciasDetalle?: AsistenciaDetalle[];
 
-    @OneToMany(() => Ganado, (g) => g.ganadoPor)
+    @OneToMany("Ganado", "ganadoPor")
     ganadosPor?: Ganado[];
 
-    @OneToMany(() => Traslado, (t) => t.miembro)
+    @OneToMany("Traslado", "miembro")
     traslados?: Traslado[];
 
-    @OneToMany(() => Traslado, (t) => t.solicitadoPor)
+    @OneToMany("Traslado", "solicitadoPor")
     trasladosSolicitados?: Traslado[];
 
-    @OneToMany(() => Traslado, (t) => t.aprobadoPor)
+    @OneToMany("Traslado", "aprobadoPor")
     trasladosAprobados?: Traslado[];
 }

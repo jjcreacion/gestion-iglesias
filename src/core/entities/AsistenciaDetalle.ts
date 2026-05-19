@@ -7,22 +7,22 @@ import {
     JoinColumn,
     Unique,
 } from "typeorm";
-import { AsistenciaServicio } from "./AsistenciaServicio";
-import { Miembro } from "./Miembro";
+import type { AsistenciaServicio } from "./AsistenciaServicio";
+import type { Miembro } from "./Miembro";
 
 export type TipoAsistente = "miembro" | "primera_vez" | "visita";
 
 @Entity("asistencia_detalle")
 @Unique("uk_detalle_asistencia_miembro", ["asistenciaServicioId", "miembroId"])
 export class AsistenciaDetalle {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-    @Column({ name: "asistencia_servicio_id", type: "char", length: 36 })
-    asistenciaServicioId!: string;
+    @Column({ name: "asistencia_servicio_id", type: "int" })
+    asistenciaServicioId!: number;
 
-    @Column({ name: "miembro_id", type: "char", length: 36 })
-    miembroId!: string;
+    @Column({ name: "miembro_id", type: "int" })
+    miembroId!: number;
 
     @Column({ type: "boolean", default: false })
     presente!: boolean;
@@ -42,11 +42,11 @@ export class AsistenciaDetalle {
     createdAt!: Date;
 
     // Relaciones
-    @ManyToOne(() => AsistenciaServicio, (as) => as.detalles, { onDelete: "CASCADE" })
+    @ManyToOne("AsistenciaServicio", "detalles", { onDelete: "CASCADE" })
     @JoinColumn({ name: "asistencia_servicio_id" })
     asistenciaServicio!: AsistenciaServicio;
 
-    @ManyToOne(() => Miembro, (miembro) => miembro.asistenciasDetalle, { onDelete: "CASCADE" })
+    @ManyToOne("Miembro", "asistenciasDetalle", { onDelete: "CASCADE" })
     @JoinColumn({ name: "miembro_id" })
     miembro!: Miembro;
 }

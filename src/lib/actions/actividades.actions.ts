@@ -12,7 +12,7 @@ export async function getActividades(soloActivas = true) {
     });
 }
 
-export async function getActividadPorId(id: string) {
+export async function getActividadPorId(id: number) {
     const ds = await getDataSource();
     return ds.getRepository(Actividad).findOne({
         where: { id },
@@ -32,8 +32,8 @@ export async function createActividad(data: {
 }
 
 export async function registrarAsistenciaActividad(data: {
-    miembroId: string;
-    actividadId: string;
+    miembroId: number;
+    actividadId: number;
     asistio: boolean;
     fechaRegistro?: Date;
     notas?: string;
@@ -57,8 +57,8 @@ export async function registrarAsistenciaActividad(data: {
 }
 
 export async function registrarListaActividad(
-    actividadId: string,
-    lista: Array<{ miembroId: string; asistio: boolean }>
+    actividadId: number,
+    lista: Array<{ miembroId: number; asistio: boolean }>
 ) {
     const ds = await getDataSource();
     const repo = ds.getRepository(MiembroActividad);
@@ -66,7 +66,7 @@ export async function registrarListaActividad(
     return repo.save(registros);
 }
 
-export async function getActividadesPorMiembro(miembroId: string) {
+export async function getActividadesPorMiembro(miembroId: number) {
     const ds = await getDataSource();
     return ds.getRepository(MiembroActividad).find({
         where: { miembroId },

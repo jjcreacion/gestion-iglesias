@@ -36,9 +36,9 @@ import {
 
 const mainNavItems = [
     { title: "Dashboard", url: "/", icon: LayoutDashboard },
-    { title: "Miembros", url: "/miembros", icon: Users },
     { title: "Territorios", url: "/territorios", icon: MapPin },
     { title: "Células", url: "/celulas", icon: Grid3X3 },
+    { title: "Miembros", url: "/miembros", icon: Users },
 ];
 
 const activityItems = [

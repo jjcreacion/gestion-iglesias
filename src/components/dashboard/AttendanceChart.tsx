@@ -28,7 +28,7 @@ export function AttendanceChart() {
       </CardHeader>
       <CardContent>
         <div className="h-[280px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
             <AreaChart
               data={data}
               margin={{ top: 10, right: 10, left: -20, bottom: 0 }}

@@ -9,25 +9,25 @@ import {
     JoinColumn,
     Unique,
 } from "typeorm";
-import { Servicio } from "./Servicio";
-import { Celula } from "./Celula";
-import { Miembro } from "./Miembro";
-import { AsistenciaDetalle } from "./AsistenciaDetalle";
+import type { Servicio } from "./Servicio";
+import type { Celula } from "./Celula";
+import type { Miembro } from "./Miembro";
+import type { AsistenciaDetalle } from "./AsistenciaDetalle";
 
 @Entity("asistencia_servicio")
 @Unique("uk_asistencia_servicio_celula", ["servicioId", "celulaId"])
 export class AsistenciaServicio {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-    @Column({ name: "servicio_id", type: "char", length: 36 })
-    servicioId!: string;
+    @Column({ name: "servicio_id", type: "int" })
+    servicioId!: number;
 
-    @Column({ name: "celula_id", type: "char", length: 36 })
-    celulaId!: string;
+    @Column({ name: "celula_id", type: "int" })
+    celulaId!: number;
 
-    @Column({ name: "registrado_por_id", type: "char", length: 36 })
-    registradoPorId!: string;
+    @Column({ name: "registrado_por_id", type: "int" })
+    registradoPorId!: number;
 
     @Column({ type: "decimal", precision: 10, scale: 2, default: 0.00 })
     ofrendas!: number;
@@ -42,18 +42,18 @@ export class AsistenciaServicio {
     updatedAt!: Date;
 
     // Relaciones
-    @ManyToOne(() => Servicio, (servicio) => servicio.asistencias, { onDelete: "CASCADE" })
+    @ManyToOne("Servicio", "asistencias", { onDelete: "CASCADE" })
     @JoinColumn({ name: "servicio_id" })
     servicio!: Servicio;
 
-    @ManyToOne(() => Celula, (celula) => celula.asistenciasServicio, { onDelete: "RESTRICT" })
+    @ManyToOne("Celula", "asistenciasServicio", { onDelete: "RESTRICT" })
     @JoinColumn({ name: "celula_id" })
     celula!: Celula;
 
-    @ManyToOne(() => Miembro, (miembro) => miembro.asistenciasRegistradas, { onDelete: "RESTRICT" })
+    @ManyToOne("Miembro", "asistenciasRegistradas", { onDelete: "RESTRICT" })
     @JoinColumn({ name: "registrado_por_id" })
     registradoPor!: Miembro;
 
-    @OneToMany(() => AsistenciaDetalle, (ad) => ad.asistenciaServicio)
+    @OneToMany("AsistenciaDetalle", "asistenciaServicio")
     detalles?: AsistenciaDetalle[];
 }

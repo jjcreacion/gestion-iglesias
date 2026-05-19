@@ -8,9 +8,9 @@ import {
     JoinColumn,
     Index,
 } from "typeorm";
-import { Miembro } from "./Miembro";
-import { Celula } from "./Celula";
-import { Servicio } from "./Servicio";
+import type { Miembro } from "./Miembro";
+import type { Celula } from "./Celula";
+import type { Servicio } from "./Servicio";
 
 export type ContextoGanado = "celula" | "servicio" | "personal";
 
@@ -18,8 +18,8 @@ export type ContextoGanado = "celula" | "servicio" | "personal";
 @Index("idx_ganado_fecha", ["fechaGanado"])
 @Index("idx_ganado_por", ["ganadoPorId"])
 export class Ganado {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
     @Column({ type: "varchar", length: 100 })
     nombre!: string;
@@ -36,14 +36,14 @@ export class Ganado {
     @Column({ name: "fecha_ganado", type: "date" })
     fechaGanado!: Date;
 
-    @Column({ name: "ganado_por_id", type: "char", length: 36 })
-    ganadoPorId!: string;
+    @Column({ name: "ganado_por_id", type: "int" })
+    ganadoPorId!: number;
 
-    @Column({ name: "celula_id", type: "char", length: 36, nullable: true })
-    celulaId?: string;
+    @Column({ name: "celula_id", type: "int", nullable: true })
+    celulaId?: number;
 
-    @Column({ name: "servicio_id", type: "char", length: 36, nullable: true })
-    servicioId?: string;
+    @Column({ name: "servicio_id", type: "int", nullable: true })
+    servicioId?: number;
 
     @Column({
         type: "enum",
@@ -55,8 +55,8 @@ export class Ganado {
     @Column({ name: "convertido_a_miembro", type: "boolean", default: false })
     convertidoAMiembro!: boolean;
 
-    @Column({ name: "miembro_id", type: "char", length: 36, nullable: true })
-    miembroId?: string;
+    @Column({ name: "miembro_id", type: "int", nullable: true })
+    miembroId?: number;
 
     @Column({ type: "text", nullable: true })
     notas?: string;
@@ -65,19 +65,19 @@ export class Ganado {
     createdAt!: Date;
 
     // Relaciones
-    @ManyToOne(() => Miembro, (miembro) => miembro.ganadosPor, { onDelete: "RESTRICT" })
+    @ManyToOne("Miembro", "ganadosPor", { onDelete: "RESTRICT" })
     @JoinColumn({ name: "ganado_por_id" })
     ganadoPor!: Miembro;
 
-    @ManyToOne(() => Celula, (celula) => celula.ganados, { onDelete: "SET NULL", nullable: true })
+    @ManyToOne("Celula", "ganados", { onDelete: "SET NULL", nullable: true })
     @JoinColumn({ name: "celula_id" })
     celula?: Celula;
 
-    @ManyToOne(() => Servicio, (servicio) => servicio.ganados, { onDelete: "SET NULL", nullable: true })
+    @ManyToOne("Servicio", "ganados", { onDelete: "SET NULL", nullable: true })
     @JoinColumn({ name: "servicio_id" })
     servicio?: Servicio;
 
-    @ManyToOne(() => Miembro, { onDelete: "SET NULL", nullable: true })
+    @ManyToOne("Miembro", undefined, { onDelete: "SET NULL", nullable: true })
     @JoinColumn({ name: "miembro_id" })
     miembro?: Miembro;
 }

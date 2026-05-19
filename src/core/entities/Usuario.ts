@@ -7,13 +7,13 @@ import {
     OneToOne,
     OneToMany,
 } from "typeorm";
-import { Miembro } from "./Miembro";
-import { Auditoria } from "./Auditoria";
+import type { Miembro } from "./Miembro";
+import type { Auditoria } from "./Auditoria";
 
 @Entity("usuarios")
 export class Usuario {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
     @Column({ type: "varchar", length: 255, unique: true })
     email!: string;
@@ -31,9 +31,9 @@ export class Usuario {
     updatedAt!: Date;
 
     // Relaciones
-    @OneToOne(() => Miembro, (miembro) => miembro.usuario)
+    @OneToOne("Miembro", "usuario")
     miembro?: Miembro;
 
-    @OneToMany(() => Auditoria, (auditoria) => auditoria.usuario)
+    @OneToMany("Auditoria", "usuario")
     auditorias?: Auditoria[];
 }

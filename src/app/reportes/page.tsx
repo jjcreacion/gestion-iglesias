@@ -160,7 +160,7 @@ export default function ReportesPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="h-[300px]">
-                                    <ResponsiveContainer width="100%" height="100%">
+                                    <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
                                         <BarChart data={asistenciaMensual}>
                                             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                                             <XAxis dataKey="mes" className="text-xs" />
@@ -224,7 +224,7 @@ export default function ReportesPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="h-[300px]">
-                                    <ResponsiveContainer width="100%" height="100%">
+                                    <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
                                         <PieChart>
                                             <Pie
                                                 data={distribucionRoles}

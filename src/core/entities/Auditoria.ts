@@ -7,17 +7,17 @@ import {
     JoinColumn,
     Index,
 } from "typeorm";
-import { Usuario } from "./Usuario";
+import type { Usuario } from "./Usuario";
 
 @Entity("auditoria")
 @Index("idx_auditoria_tabla", ["tablaAfectada"])
 @Index("idx_auditoria_fecha", ["createdAt"])
 export class Auditoria {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-    @Column({ name: "usuario_id", type: "char", length: 36, nullable: true })
-    usuarioId?: string;
+    @Column({ name: "usuario_id", type: "int", nullable: true })
+    usuarioId?: number;
 
     @Column({ type: "varchar", length: 50 })
     accion!: string;
@@ -25,8 +25,8 @@ export class Auditoria {
     @Column({ name: "tabla_afectada", type: "varchar", length: 50 })
     tablaAfectada!: string;
 
-    @Column({ name: "registro_id", type: "char", length: 36, nullable: true })
-    registroId?: string;
+    @Column({ name: "registro_id", type: "int", nullable: true })
+    registroId?: number;
 
     @Column({ name: "datos_anteriores", type: "json", nullable: true })
     datosAnteriores?: Record<string, unknown>;
@@ -35,13 +35,13 @@ export class Auditoria {
     datosNuevos?: Record<string, unknown>;
 
     @Column({ type: "varchar", length: 45, nullable: true })
-    ip?: string;
+    ip?: number;
 
     @CreateDateColumn({ name: "created_at" })
     createdAt!: Date;
 
     // Relaciones
-    @ManyToOne(() => Usuario, (usuario) => usuario.auditorias, {
+    @ManyToOne("Usuario", "auditorias", {
         onDelete: "SET NULL",
         nullable: true,
     })

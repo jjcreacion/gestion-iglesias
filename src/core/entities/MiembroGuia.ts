@@ -8,20 +8,20 @@ import {
     JoinColumn,
     Unique,
 } from "typeorm";
-import { Miembro } from "./Miembro";
-import { Guia } from "./Guia";
+import type { Miembro } from "./Miembro";
+import type { Guia } from "./Guia";
 
 @Entity("miembro_guias")
 @Unique("uk_miembro_guia", ["miembroId", "guiaId"])
 export class MiembroGuia {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-    @Column({ name: "miembro_id", type: "char", length: 36 })
-    miembroId!: string;
+    @Column({ name: "miembro_id", type: "int" })
+    miembroId!: number;
 
-    @Column({ name: "guia_id", type: "char", length: 36 })
-    guiaId!: string;
+    @Column({ name: "guia_id", type: "int" })
+    guiaId!: number;
 
     @Column({ type: "boolean", default: false })
     completada!: boolean;
@@ -29,8 +29,8 @@ export class MiembroGuia {
     @Column({ name: "fecha_completada", type: "date", nullable: true })
     fechaCompletada?: Date;
 
-    @Column({ name: "marcada_por_id", type: "char", length: 36, nullable: true })
-    marcadaPorId?: string;
+    @Column({ name: "marcada_por_id", type: "int", nullable: true })
+    marcadaPorId?: number;
 
     @Column({ type: "text", nullable: true })
     notas?: string;
@@ -42,15 +42,15 @@ export class MiembroGuia {
     updatedAt!: Date;
 
     // Relaciones
-    @ManyToOne(() => Miembro, (miembro) => miembro.guias, { onDelete: "CASCADE" })
+    @ManyToOne("Miembro", "guias", { onDelete: "CASCADE" })
     @JoinColumn({ name: "miembro_id" })
     miembro!: Miembro;
 
-    @ManyToOne(() => Guia, (guia) => guia.miembroGuias, { onDelete: "CASCADE" })
+    @ManyToOne("Guia", "miembroGuias", { onDelete: "CASCADE" })
     @JoinColumn({ name: "guia_id" })
     guia!: Guia;
 
-    @ManyToOne(() => Miembro, { onDelete: "SET NULL", nullable: true })
+    @ManyToOne("Miembro", undefined, { onDelete: "SET NULL", nullable: true })
     @JoinColumn({ name: "marcada_por_id" })
     marcadaPor?: Miembro;
 }

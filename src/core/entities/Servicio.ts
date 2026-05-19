@@ -6,16 +6,16 @@ import {
     OneToMany,
     Unique,
 } from "typeorm";
-import { AsistenciaServicio } from "./AsistenciaServicio";
-import { Ganado } from "./Ganado";
+import type { AsistenciaServicio } from "./AsistenciaServicio";
+import type { Ganado } from "./Ganado";
 
 export type TipoServicio = "domingo" | "especial" | "entre_semana";
 
 @Entity("servicios")
 @Unique("uk_servicio_fecha_tipo", ["fecha", "tipo"])
 export class Servicio {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
     @Column({ type: "date" })
     fecha!: Date;
@@ -34,9 +34,9 @@ export class Servicio {
     createdAt!: Date;
 
     // Relaciones
-    @OneToMany(() => AsistenciaServicio, (as) => as.servicio)
+    @OneToMany("AsistenciaServicio", "servicio")
     asistencias?: AsistenciaServicio[];
 
-    @OneToMany(() => Ganado, (g) => g.servicio)
+    @OneToMany("Ganado", "servicio")
     ganados?: Ganado[];
 }

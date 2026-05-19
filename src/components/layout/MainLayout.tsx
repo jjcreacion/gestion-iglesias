@@ -23,7 +23,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     return (
         <SidebarProvider>
             <div className="flex flex-col min-h-screen w-full">
-                <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:px-6">
+                <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b bg-slate-100/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-slate-100/60 lg:px-6">
                     <div className="flex items-center gap-4">
                         <SidebarTrigger className="-ml-1" />
                         <div className="hidden md:flex md:w-80 lg:w-96">

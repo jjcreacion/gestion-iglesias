@@ -6,13 +6,13 @@ import {
     OneToMany,
     Unique,
 } from "typeorm";
-import { MiembroGuia } from "./MiembroGuia";
+import type { MiembroGuia } from "./MiembroGuia";
 
 @Entity("guias")
 @Unique("uk_guia_numero", ["numero"])
 export class Guia {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
     @Column({ type: "int" })
     numero!: number;
@@ -30,6 +30,6 @@ export class Guia {
     createdAt!: Date;
 
     // Relaciones
-    @OneToMany(() => MiembroGuia, (mg) => mg.guia)
+    @OneToMany("MiembroGuia", "guia")
     miembroGuias?: MiembroGuia[];
 }

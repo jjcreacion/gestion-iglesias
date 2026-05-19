@@ -1,20 +1,27 @@
+import "reflect-metadata";
 import {
     Entity,
+    Index,
     PrimaryGeneratedColumn,
     Column,
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
+    ManyToOne,
+    JoinColumn,
+    RelationId,
 } from "typeorm";
-import { Celula } from "./Celula";
-import { MiembroRol } from "./MiembroRol";
+import type { Celula } from "./Celula";
+import type { Miembro } from "./Miembro";
+import type { MiembroRol } from "./MiembroRol";
 
+@Index(["codigo", "activo"], { unique: true })
 @Entity("territorios")
 export class Territorio {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-    @Column({ type: "varchar", length: 20, unique: true })
+    @Column({ type: "varchar", length: 20 })
     codigo!: string;
 
     @Column({ type: "varchar", length: 100 })
@@ -36,9 +43,23 @@ export class Territorio {
     updatedAt!: Date;
 
     // Relaciones
-    @OneToMany(() => Celula, (celula) => celula.territorio)
+    @OneToMany("Celula", "territorio")
     celulas?: Celula[];
 
-    @OneToMany(() => MiembroRol, (mr) => mr.territorio)
+    @ManyToOne("Miembro", { nullable: true, onDelete: "SET NULL" })
+    @JoinColumn({ name: "lider_id" })
+    lider?: Miembro;
+
+    @RelationId((territorio: Territorio) => territorio.lider)
+    liderId?: number;
+
+    @ManyToOne("Miembro", { nullable: true, onDelete: "SET NULL" })
+    @JoinColumn({ name: "colider_id" })
+    colider?: Miembro;
+
+    @RelationId((territorio: Territorio) => territorio.colider)
+    coliderId?: number;
+
+    @OneToMany("MiembroRol", "territorio")
     miembroRoles?: MiembroRol[];
 }

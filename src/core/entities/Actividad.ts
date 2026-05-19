@@ -5,14 +5,14 @@ import {
     CreateDateColumn,
     OneToMany,
 } from "typeorm";
-import { MiembroActividad } from "./MiembroActividad";
+import type { MiembroActividad } from "./MiembroActividad";
 
 export type TipoActividad = "encuentro" | "retiro" | "taller" | "capacitacion" | "otro";
 
 @Entity("actividades")
 export class Actividad {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
     @Column({ type: "varchar", length: 100 })
     nombre!: string;
@@ -37,6 +37,6 @@ export class Actividad {
     createdAt!: Date;
 
     // Relaciones
-    @OneToMany(() => MiembroActividad, (ma) => ma.actividad)
+    @OneToMany("MiembroActividad", "actividad")
     miembroActividades?: MiembroActividad[];
 }

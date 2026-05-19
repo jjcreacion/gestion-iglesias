@@ -5,12 +5,12 @@ import {
     CreateDateColumn,
     OneToMany,
 } from "typeorm";
-import { MiembroRol } from "./MiembroRol";
+import type { MiembroRol } from "./MiembroRol";
 
 @Entity("roles")
 export class Rol {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
     @Column({ type: "varchar", length: 50, unique: true })
     nombre!: string;
@@ -22,6 +22,6 @@ export class Rol {
     createdAt!: Date;
 
     // Relaciones
-    @OneToMany(() => MiembroRol, (mr) => mr.rol)
+    @OneToMany("MiembroRol", "rol")
     miembroRoles?: MiembroRol[];
 }

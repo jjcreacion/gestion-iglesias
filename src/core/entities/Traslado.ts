@@ -6,33 +6,33 @@ import {
     ManyToOne,
     JoinColumn,
 } from "typeorm";
-import { Miembro } from "./Miembro";
-import { Celula } from "./Celula";
+import type { Miembro } from "./Miembro";
+import type { Celula } from "./Celula";
 
 export type EstadoTraslado = "pendiente" | "aprobado" | "rechazado";
 
 @Entity("traslados")
 export class Traslado {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-    @Column({ name: "miembro_id", type: "char", length: 36 })
-    miembroId!: string;
+    @Column({ name: "miembro_id", type: "int" })
+    miembroId!: number;
 
-    @Column({ name: "celula_origen_id", type: "char", length: 36 })
-    celulaOrigenId!: string;
+    @Column({ name: "celula_origen_id", type: "int" })
+    celulaOrigenId!: number;
 
-    @Column({ name: "celula_destino_id", type: "char", length: 36 })
-    celulaDestinoId!: string;
+    @Column({ name: "celula_destino_id", type: "int" })
+    celulaDestinoId!: number;
 
-    @Column({ name: "solicitado_por_id", type: "char", length: 36 })
-    solicitadoPorId!: string;
+    @Column({ name: "solicitado_por_id", type: "int" })
+    solicitadoPorId!: number;
 
-    @Column({ name: "aprobado_por_id", type: "char", length: 36, nullable: true })
-    aprobadoPorId?: string;
+    @Column({ name: "aprobado_por_id", type: "int", nullable: true })
+    aprobadoPorId?: number;
 
     @Column({ type: "text", nullable: true })
-    motivo?: string;
+    motivo?: number;
 
     @Column({
         type: "enum",
@@ -51,23 +51,23 @@ export class Traslado {
     createdAt!: Date;
 
     // Relaciones
-    @ManyToOne(() => Miembro, (miembro) => miembro.traslados, { onDelete: "CASCADE" })
+    @ManyToOne("Miembro", "traslados", { onDelete: "CASCADE" })
     @JoinColumn({ name: "miembro_id" })
     miembro!: Miembro;
 
-    @ManyToOne(() => Celula, (celula) => celula.trasladosOrigen, { onDelete: "RESTRICT" })
+    @ManyToOne("Celula", "trasladosOrigen", { onDelete: "RESTRICT" })
     @JoinColumn({ name: "celula_origen_id" })
     celulaOrigen!: Celula;
 
-    @ManyToOne(() => Celula, (celula) => celula.trasladosDestino, { onDelete: "RESTRICT" })
+    @ManyToOne("Celula", "trasladosDestino", { onDelete: "RESTRICT" })
     @JoinColumn({ name: "celula_destino_id" })
     celulaDestino!: Celula;
 
-    @ManyToOne(() => Miembro, (miembro) => miembro.trasladosSolicitados, { onDelete: "RESTRICT" })
+    @ManyToOne("Miembro", "trasladosSolicitados", { onDelete: "RESTRICT" })
     @JoinColumn({ name: "solicitado_por_id" })
     solicitadoPor!: Miembro;
 
-    @ManyToOne(() => Miembro, (miembro) => miembro.trasladosAprobados, {
+    @ManyToOne("Miembro", "trasladosAprobados", {
         onDelete: "SET NULL",
         nullable: true,
     })

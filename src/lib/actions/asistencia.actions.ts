@@ -14,7 +14,7 @@ export async function getServicios(limit = 20) {
     });
 }
 
-export async function getServicioPorId(id: string) {
+export async function getServicioPorId(id: number) {
     const ds = await getDataSource();
     return ds.getRepository(Servicio).findOne({
         where: { id },
@@ -34,9 +34,9 @@ export async function createServicio(data: {
 
 // ── Asistencia por célula ──────────────────────────────────────────────────
 export async function registrarAsistenciaServicio(data: {
-    servicioId: string;
-    celulaId: string;
-    registradoPorId: string;
+    servicioId: number;
+    celulaId: number;
+    registradoPorId: number;
     ofrendas?: number;
     notas?: string;
 }) {
@@ -46,7 +46,7 @@ export async function registrarAsistenciaServicio(data: {
     return repo.save(asistencia);
 }
 
-export async function getAsistenciaPorServicioCelula(servicioId: string, celulaId: string) {
+export async function getAsistenciaPorServicioCelula(servicioId: number, celulaId: number) {
     const ds = await getDataSource();
     return ds.getRepository(AsistenciaServicio).findOne({
         where: { servicioId, celulaId },
@@ -56,8 +56,8 @@ export async function getAsistenciaPorServicioCelula(servicioId: string, celulaI
 
 // ── Detalle de asistencia por miembro ─────────────────────────────────────
 export async function registrarDetalleAsistencia(data: {
-    asistenciaServicioId: string;
-    miembroId: string;
+    asistenciaServicioId: number;
+    miembroId: number;
     presente: boolean;
     tipoAsistente?: TipoAsistente;
     notas?: string;
@@ -82,8 +82,8 @@ export async function registrarDetalleAsistencia(data: {
 }
 
 export async function registrarListaAsistencia(
-    asistenciaServicioId: string,
-    lista: Array<{ miembroId: string; presente: boolean; tipoAsistente?: TipoAsistente }>
+    asistenciaServicioId: number,
+    lista: Array<{ miembroId: number; presente: boolean; tipoAsistente?: TipoAsistente }>
 ) {
     const ds = await getDataSource();
     const repo = ds.getRepository(AsistenciaDetalle);
@@ -96,7 +96,7 @@ export async function registrarListaAsistencia(
 }
 
 // ── Reportes de asistencia ─────────────────────────────────────────────────
-export async function getReporteAsistenciaPorCelula(celulaId: string, desde?: Date, hasta?: Date) {
+export async function getReporteAsistenciaPorCelula(celulaId: number, desde?: Date, hasta?: Date) {
     const ds = await getDataSource();
     const query = ds.getRepository(AsistenciaServicio)
         .createQueryBuilder("asv")

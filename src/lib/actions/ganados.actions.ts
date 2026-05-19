@@ -3,7 +3,7 @@
 import { getDataSource } from "@/lib/db";
 import { Ganado, ContextoGanado } from "@/core/entities/Ganado";
 
-export async function getGanados(filtros?: { celulaId?: string; mes?: string }) {
+export async function getGanados(filtros?: { celulaId?: number; mes?: string }) {
     const ds = await getDataSource();
     const query = ds.getRepository(Ganado)
         .createQueryBuilder("g")
@@ -21,7 +21,7 @@ export async function getGanados(filtros?: { celulaId?: string; mes?: string }) 
     return query.orderBy("g.fecha_ganado", "DESC").getMany();
 }
 
-export async function getGanadoPorId(id: string) {
+export async function getGanadoPorId(id: number) {
     const ds = await getDataSource();
     return ds.getRepository(Ganado).findOne({
         where: { id },
@@ -35,9 +35,9 @@ export async function createGanado(data: {
     telefono?: string;
     direccion?: string;
     fechaGanado?: Date;
-    ganadoPorId: string;
-    celulaId?: string;
-    servicioId?: string;
+    ganadoPorId: number;
+    celulaId?: number;
+    servicioId?: number;
     contexto?: ContextoGanado;
     notas?: string;
 }) {
@@ -51,7 +51,7 @@ export async function createGanado(data: {
     return repo.save(ganado);
 }
 
-export async function convertirGanadoAMiembro(ganadoId: string, miembroId: string) {
+export async function convertirGanadoAMiembro(ganadoId: number, miembroId: number) {
     const ds = await getDataSource();
     return ds.getRepository(Ganado).update(ganadoId, {
         convertidoAMiembro: true,
@@ -59,7 +59,7 @@ export async function convertirGanadoAMiembro(ganadoId: string, miembroId: strin
     });
 }
 
-export async function getResumenGanadosMes(mes: string, territorioId?: string) {
+export async function getResumenGanadosMes(mes: string, territorioId?: number) {
     const ds = await getDataSource();
     const query = ds.getRepository(Ganado)
         .createQueryBuilder("g")

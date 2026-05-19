@@ -21,7 +21,7 @@ export async function createGuia(data: { numero: number; titulo: string; descrip
 }
 
 export async function updateGuia(
-    id: string,
+    id: number,
     data: Partial<{ numero: number; titulo: string; descripcion: string; activo: boolean }>
 ) {
     const ds = await getDataSource();
@@ -29,7 +29,7 @@ export async function updateGuia(
 }
 
 // ── Guías de Miembro ───────────────────────────────────────────────────────
-export async function getGuiasPorMiembro(miembroId: string) {
+export async function getGuiasPorMiembro(miembroId: number) {
     const ds = await getDataSource();
     return ds.getRepository(MiembroGuia).find({
         where: { miembroId },
@@ -39,9 +39,9 @@ export async function getGuiasPorMiembro(miembroId: string) {
 }
 
 export async function marcarGuiaCompletada(
-    miembroId: string,
-    guiaId: string,
-    marcadaPorId: string,
+    miembroId: number,
+    guiaId: number,
+    marcadaPorId: number,
     notas?: string
 ) {
     const ds = await getDataSource();
@@ -61,7 +61,7 @@ export async function marcarGuiaCompletada(
     return repo.save(miembroGuia);
 }
 
-export async function desmarcarGuia(miembroId: string, guiaId: string) {
+export async function desmarcarGuia(miembroId: number, guiaId: number) {
     const ds = await getDataSource();
     return ds.getRepository(MiembroGuia).update(
         { miembroId, guiaId },
@@ -69,7 +69,7 @@ export async function desmarcarGuia(miembroId: string, guiaId: string) {
     );
 }
 
-export async function getProgresoPorMiembro(miembroId: string) {
+export async function getProgresoPorMiembro(miembroId: number) {
     const ds = await getDataSource();
     return ds.getRepository(MiembroGuia).count({
         where: { miembroId, completada: true },
